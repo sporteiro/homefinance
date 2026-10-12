@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses - HomeFinance{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h2>Expenses</h2>
+        <a class="button" href="/import">Import CSV</a>
+    </header>
+
+    <form class="filters" method="get" action="/expenses">
+        <label>
+            Category
+            <select name="category_id">
+                <option value="">All</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}"
+                    {% if selected_category_id == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            From
+            <input type="date" name="date_from" value="{{ date_from or '' }}">
+        </label>
+        <label>
+            To
+            <input type="date" name="date_to" value="{{ date_to or '' }}">
+        </label>
+        <button type="submit">Apply</button>
+        <a class="button button-secondary" href="/expenses">Reset</a>
+    </form>
+
+    {% if expenses %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th class="align-right">Amount</th>
+                <th>Source</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.occurred_on }}</td>
+                <td>{{ expense.category.name }}</td>
+                <td>{{ expense.description or '' }}</td>
+                <td class="align-right mono">{{ expense.amount }} {{ expense.currency }}</td>
+                <td>{{ expense.source }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty">No expenses found.</p>
+    {% endif %}
+</section>
+{% endblock %}

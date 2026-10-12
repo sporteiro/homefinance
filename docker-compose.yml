@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: homefinance-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: homefinance
+      POSTGRES_PASSWORD: change_me
+      POSTGRES_DB: homefinance
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homefinance -d homefinance"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: homefinance-app
+    restart: unless-stopped
+    environment:
+      APP_NAME: HomeFinance
+      APP_ENV: development
+      POSTGRES_USER: homefinance
+      POSTGRES_PASSWORD: change_me
+      POSTGRES_DB: homefinance
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:

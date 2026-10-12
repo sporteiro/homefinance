@@ -1,0 +1,6 @@
+date,amount,description,category,id
+2024-01-05,58.20,Electricity January,Electricity,elec-2024-01
+2024-01-10,22.40,Water January,Water,water-2024-01
+2024-01-15,39.99,Internet January,Internet,inet-2024-01
+2024-02-05,61.10,Electricity February,Electricity,elec-2024-02
+2024-02-20,132.65,Weekly groceries,Food,food-2024-02a
