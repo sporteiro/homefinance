@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - HomeFinance{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <h2>Dashboard</h2>
+
+    <form class="filters" method="get" action="/">
+        <label>
+            From
+            <input type="date" name="date_from" value="{{ date_from or '' }}">
+        </label>
+        <label>
+            To
+            <input type="date" name="date_to" value="{{ date_to or '' }}">
+        </label>
+        <button type="submit">Apply</button>
+    </form>
+
+    <div class="cards">
+        <div class="card">
+            <span class="card-label">Total</span>
+            <span class="card-value">{{ summary.grand_total }}</span>
+        </div>
+        <div class="card">
+            <span class="card-label">Expenses</span>
+            <span class="card-value">{{ summary.expense_count }}</span>
+        </div>
+        <div class="card">
+            <span class="card-label">Categories</span>
+            <span class="card-value">{{ summary.by_category | length }}</span>
+        </div>
+        <div class="card">
+            <span class="card-label">Months</span>
+            <span class="card-value">{{ summary.by_month | length }}</span>
+        </div>
+    </div>
+
+    <div class="charts">
+        <section class="panel">
+            <h3>Expenses by category</h3>
+            <canvas id="chart-categories" class="chart-canvas"></canvas>
+        </section>
+        <section class="panel">
+            <h3>Expenses by month</h3>
+            <canvas id="chart-months" class="chart-canvas"></canvas>
+        </section>
+    </div>
+
+    <div class="panels">
+        <section class="panel">
+            <h3>Detail by category</h3>
+            {% if summary.by_category %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.by_category %}
+                    <tr>
+                        <td>{{ row.category_name }}</td>
+                        <td>{{ row.total }}</td>
+                        <td>{{ row.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No data available.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel">
+            <h3>Detail by month</h3>
+            {% if summary.by_month %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.by_month %}
+                    <tr>
+                        <td>{{ row.year }}-{{ "%02d"|format(row.month) }}</td>
+                        <td>{{ row.total }}</td>
+                        <td>{{ row.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No data available.</p>
+            {% endif %}
+        </section>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.homeFinanceDashboard = {
+        byCategory: {{ summary.by_category | map(attribute='category_name') | list | tojson }},
+        categoryTotals: {{ summary.by_category | map(attribute='total') | map('string') | list | tojson }},
+        byMonth: {{ summary.by_month | map(attribute='year') | list | tojson }},
+        monthTotals: {{ summary.by_month | map(attribute='total') | map('string') | list | tojson }}
+    };
+</script>
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

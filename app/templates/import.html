@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Import - HomeFinance{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h2>Import expenses from CSV</h2>
+    </header>
+
+    <form id="import-form" class="form" enctype="multipart/form-data">
+        <label>
+            CSV file
+            <input type="file" name="file" accept=".csv,text/csv" required>
+        </label>
+
+        <label>
+            Source
+            <input type="text" name="source" value="bank">
+        </label>
+
+        <fieldset class="fieldset">
+            <legend>Column mapping</legend>
+            <label>
+                Date column
+                <input type="text" name="date_column" value="date">
+            </label>
+            <label>
+                Amount column
+                <input type="text" name="amount_column" value="amount">
+            </label>
+            <label>
+                Description column
+                <input type="text" name="description_column" value="description">
+            </label>
+            <label>
+                Category column
+                <input type="text" name="category_column" value="category">
+            </label>
+            <label>
+                External ID column
+                <input type="text" name="external_id_column" value="id">
+            </label>
+            <label>
+                Delimiter
+                <input type="text" name="delimiter" value="," maxlength="1">
+            </label>
+        </fieldset>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <section id="import-result" class="panel hidden">
+        <h3>Result</h3>
+        <dl class="result-list">
+            <dt>File</dt><dd id="result-filename"></dd>
+            <dt>Total rows</dt><dd id="result-total"></dd>
+            <dt>Imported</dt><dd id="result-imported"></dd>
+            <dt>Skipped</dt><dd id="result-skipped"></dd>
+        </dl>
+        <div id="result-errors" class="errors hidden">
+            <h4>Errors</h4>
+            <ul id="result-errors-list"></ul>
+        </div>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/import.js"></script>
+{% endblock %}
