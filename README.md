@@ -10,5 +10,4 @@ A lightweight, self-hosted personal finance app for tracking household expenses.
 - FastAPI + PostgreSQL + Docker
 
 ## Status
-
 Early development.
