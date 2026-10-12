@@ -3,14 +3,18 @@ services:
     image: postgres:16-alpine
     container_name: homefinance-db
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: homefinance
-      POSTGRES_PASSWORD: change_me
-      POSTGRES_DB: homefinance
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_HOST_PORT}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U homefinance -d homefinance"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -19,21 +23,24 @@ services:
     build: .
     container_name: homefinance-app
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      APP_NAME: HomeFinance
-      APP_ENV: development
-      POSTGRES_USER: homefinance
-      POSTGRES_PASSWORD: change_me
-      POSTGRES_DB: homefinance
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      APP_NAME: ${APP_NAME}
+      APP_ENV: ${APP_ENV}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:8000"
     volumes:
       - .:/app
+      - ./data:/data
 
 volumes:
   postgres_data:

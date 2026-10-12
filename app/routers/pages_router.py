@@ -71,19 +71,26 @@ class PagesRouter:
         db: Session = Depends(get_db),
     ) -> HTMLResponse:
         service = CategoryService(db)
-        categories = service.list_all()
+        stats = service.list_with_stats()
 
         return self.templates.TemplateResponse(
             request=request,
             name="categories.html",
-            context={"categories": categories},
+            context={"stats": stats},
         )
 
-    def render_import(self, request: Request) -> HTMLResponse:
+    def render_import(
+        self,
+        request: Request,
+        db: Session = Depends(get_db),
+    ) -> HTMLResponse:
+        service = CategoryService(db)
+        categories = service.list_all()
+
         return self.templates.TemplateResponse(
             request=request,
             name="import.html",
-            context={},
+            context={"categories": categories},
         )
 
 

@@ -8,21 +8,33 @@
         <h2>Categories</h2>
     </header>
 
-    {% if categories %}
+    {% if stats %}
     <table class="data-table">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Description</th>
                 <th class="align-right">Expenses</th>
+                <th class="align-right">Avg / year</th>
+                <th class="align-right">Avg / month</th>
+                <th class="align-right">Total spent</th>
             </tr>
         </thead>
         <tbody>
-            {% for category in categories %}
+            {% for stat in stats %}
             <tr>
-                <td>{{ category.name }}</td>
-                <td>{{ category.description or '' }}</td>
-                <td class="align-right mono">{{ category.expenses | length }}</td>
+                <td>{{ stat.category.name }}</td>
+                <td>{{ stat.category.description or '' }}</td>
+                <td class="align-right mono">{{ stat.expense_count }}</td>
+                <td class="align-right mono">
+                    {{ "%.2f"|format(stat.average_per_year) }} &euro;
+                </td>
+                <td class="align-right mono">
+                    {{ "%.2f"|format(stat.average_per_month) }} &euro;
+                </td>
+                <td class="align-right mono">
+                    <strong>{{ "%.2f"|format(stat.total_spent) }} &euro;</strong>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

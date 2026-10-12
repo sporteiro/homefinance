@@ -4,9 +4,11 @@ from app.schemas.category import (
     CategoryUpdate,
 )
 from app.schemas.dashboard import (
+    CategoryStatistics,
     CategoryTotal,
     DashboardSummary,
-    MonthlyTotal,
+    MonthCategoryRow,
+    YearCategoryRow,
 )
 from app.schemas.expense import (
     ExpenseCreate,
@@ -14,17 +16,22 @@ from app.schemas.expense import (
     ExpenseUpdate,
 )
 from app.schemas.import_batch import ImportBatchRead, ImportResult
+from app.schemas.reset import ResetRequest, ResetResult
 
 __all__ = [
     "CategoryCreate",
     "CategoryRead",
     "CategoryUpdate",
+    "CategoryStatistics",
     "CategoryTotal",
     "DashboardSummary",
-    "MonthlyTotal",
+    "MonthCategoryRow",
+    "YearCategoryRow",
     "ExpenseCreate",
     "ExpenseRead",
     "ExpenseUpdate",
     "ImportBatchRead",
     "ImportResult",
+    "ResetRequest",
+    "ResetResult",
 ]

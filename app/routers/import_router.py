@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.routers.dependencies import get_db
 from app.schemas import ImportResult
-from app.services import CsvParser, ImportService
+from app.services import CategoryService, CsvParser, ImportService
 
 
 class ImportRouter:
@@ -23,17 +23,22 @@ class ImportRouter:
     async def import_csv(
         self,
         file: UploadFile = File(...),
+        category_id: int = Form(...),
         source: str = Form("bank"),
-        date_column: str = Form("date"),
-        amount_column: str = Form("amount"),
-        description_column: str = Form("description"),
-        category_column: str = Form("category"),
-        external_id_column: str = Form("id"),
+        date_column: str = Form("fecha"),
+        amount_column: str = Form("importe"),
+        description_column: str = Form(""),
+        category_column: str = Form(""),
+        external_id_column: str = Form(""),
         delimiter: str = Form(","),
         db: Session = Depends(get_db),
     ) -> ImportResult:
         if not file.filename:
             raise HTTPException(status_code=400, detail="Missing filename")
+
+        category_service = CategoryService(db)
+        if category_service.get_by_id(category_id) is None:
+            raise HTTPException(status_code=404, detail="Category not found")
 
         content_bytes = await file.read()
         try:
@@ -45,9 +50,11 @@ class ImportRouter:
             date_column=date_column,
             amount_column=amount_column,
             description_column=description_column,
-            category_column=category_column or None,
-            external_id_column=external_id_column or None,
+            category_column=category_column,
+            external_id_column=external_id_column,
             delimiter=delimiter,
+            absolute_amount=True,
+            skip_positive=True,
         )
 
         service = ImportService(db, parser=parser)
@@ -55,6 +62,7 @@ class ImportRouter:
             filename=file.filename,
             content=content,
             source=source,
+            default_category_id=category_id,
         )
 
 

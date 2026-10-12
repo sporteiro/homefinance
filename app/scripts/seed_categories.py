@@ -1,19 +1,18 @@
+from app.core.constants import EXPENSE_TYPES
 from app.core.database import database
 from app.models import Category
 from app.services import CategoryService
 
-DEFAULT_CATEGORIES = [
-    ("Electricity", "Power supply bills"),
-    ("Water", "Water supply bills"),
-    ("Internet", "Internet and connectivity bills"),
-    ("Food", "Groceries and meals"),
-    ("Rent", "Housing rent or mortgage"),
-    ("Transport", "Fuel, public transport, tolls"),
-    ("Health", "Medical and pharmacy expenses"),
-    ("Insurance", "Home, car and personal insurance"),
-    ("Subscriptions", "Recurring digital services"),
-    ("Other", "Uncategorized or miscellaneous"),
-]
+CATEGORY_DESCRIPTIONS = {
+    "Electricity": "Power supply bills",
+    "Water": "Water supply bills",
+    "Internet": "Internet and connectivity bills",
+    "Taxes": "Taxes and public fees",
+    "Food": "Groceries and meals",
+    "Car": "Fuel, tolls and car maintenance",
+    "Travel": "Trips, flights and accommodation",
+    "Other": "Uncategorized or miscellaneous",
+}
 
 
 class CategorySeeder:
@@ -23,10 +22,13 @@ class CategorySeeder:
 
     def run(self) -> int:
         created = 0
-        for name, description in DEFAULT_CATEGORIES:
+        for name in EXPENSE_TYPES:
             if self.service.get_by_name(name) is not None:
                 continue
-            category = Category(name=name, description=description)
+            category = Category(
+                name=name,
+                description=CATEGORY_DESCRIPTIONS.get(name),
+            )
             self.session.add(category)
             created += 1
         self.session.commit()

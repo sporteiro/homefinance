@@ -16,12 +16,13 @@
             <input type="date" name="date_to" value="{{ date_to or '' }}">
         </label>
         <button type="submit">Apply</button>
+        <a class="button button-secondary" href="/">Reset</a>
     </form>
 
     <div class="cards">
         <div class="card">
             <span class="card-label">Total</span>
-            <span class="card-value">{{ summary.grand_total }}</span>
+            <span class="card-value">{{ "%.2f"|format(summary.grand_total) }} &euro;</span>
         </div>
         <div class="card">
             <span class="card-label">Expenses</span>
@@ -31,20 +32,68 @@
             <span class="card-label">Categories</span>
             <span class="card-value">{{ summary.by_category | length }}</span>
         </div>
-        <div class="card">
-            <span class="card-label">Months</span>
-            <span class="card-value">{{ summary.by_month | length }}</span>
-        </div>
     </div>
 
     <div class="charts">
         <section class="panel">
             <h3>Expenses by category</h3>
             <canvas id="chart-categories" class="chart-canvas"></canvas>
+            <div id="legend-categories" class="chart-legend"></div>
         </section>
         <section class="panel">
-            <h3>Expenses by month</h3>
+            <h3>Expenses by month (last 12 months)</h3>
             <canvas id="chart-months" class="chart-canvas"></canvas>
+            <div id="legend-months" class="chart-legend"></div>
+        </section>
+    </div>
+
+    <div class="charts">
+        <section class="panel panel-wide">
+            <h3>Expenses by year (last 10 years)</h3>
+            <canvas id="chart-years" class="chart-canvas"></canvas>
+            <div id="legend-years" class="chart-legend"></div>
+        </section>
+    </div>
+
+    <div class="panels">
+        <section class="panel panel-wide">
+            <h3>Historical statistics by category</h3>
+            {% if summary.category_statistics %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th class="align-right">Total</th>
+                        <th class="align-right">Count</th>
+                        <th class="align-right">Mean</th>
+                        <th class="align-right">Median</th>
+                        <th class="align-right">Mode</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.category_statistics %}
+                    <tr>
+                        <td>{{ row.category_name }}</td>
+                        <td class="align-right mono">
+                            <strong>{{ "%.2f"|format(row.total) }} &euro;</strong>
+                        </td>
+                        <td class="align-right mono">{{ row.count }}</td>
+                        <td class="align-right mono">
+                            {{ "%.2f"|format(row.mean) }} &euro;
+                        </td>
+                        <td class="align-right mono">
+                            {{ "%.2f"|format(row.median) }} &euro;
+                        </td>
+                        <td class="align-right mono">
+                            {{ "%.2f"|format(row.mode) }} &euro;
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No data available.</p>
+            {% endif %}
         </section>
     </div>
 
@@ -56,16 +105,16 @@
                 <thead>
                     <tr>
                         <th>Category</th>
-                        <th>Total</th>
-                        <th>Count</th>
+                        <th class="align-right">Total</th>
+                        <th class="align-right">Count</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in summary.by_category %}
                     <tr>
                         <td>{{ row.category_name }}</td>
-                        <td>{{ row.total }}</td>
-                        <td>{{ row.count }}</td>
+                        <td class="align-right mono">{{ "%.2f"|format(row.total) }} &euro;</td>
+                        <td class="align-right mono">{{ row.count }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -74,24 +123,70 @@
             <p class="empty">No data available.</p>
             {% endif %}
         </section>
+    </div>
 
-        <section class="panel">
-            <h3>Detail by month</h3>
-            {% if summary.by_month %}
+    <div class="panels">
+        <section class="panel panel-wide">
+            <h3>Yearly totals by category</h3>
+            {% if summary.years_table %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        {% for name in summary.category_names %}
+                        <th class="align-right">{{ name }}</th>
+                        {% endfor %}
+                        <th class="align-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.years_table %}
+                    <tr>
+                        <td>{{ row.year }}</td>
+                        {% for name in summary.category_names %}
+                        <td class="align-right mono">
+                            {{ "%.2f"|format(row.per_category.get(name, 0)) }} &euro;
+                        </td>
+                        {% endfor %}
+                        <td class="align-right mono">
+                            <strong>{{ "%.2f"|format(row.total) }} &euro;</strong>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No data available.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="panels">
+        <section class="panel panel-wide">
+            <h3>Monthly totals by category (last 12 months)</h3>
+            {% if summary.months_last_12 %}
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Month</th>
-                        <th>Total</th>
-                        <th>Count</th>
+                        {% for name in summary.category_names %}
+                        <th class="align-right">{{ name }}</th>
+                        {% endfor %}
+                        <th class="align-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in summary.by_month %}
+                    {% for row in summary.months_last_12 %}
                     <tr>
-                        <td>{{ row.year }}-{{ "%02d"|format(row.month) }}</td>
-                        <td>{{ row.total }}</td>
-                        <td>{{ row.count }}</td>
+                        <td>{{ row.label }}</td>
+                        {% for name in summary.category_names %}
+                        <td class="align-right mono">
+                            {{ "%.2f"|format(row.per_category.get(name, 0)) }} &euro;
+                        </td>
+                        {% endfor %}
+                        <td class="align-right mono">
+                            <strong>{{ "%.2f"|format(row.total) }} &euro;</strong>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -107,10 +202,33 @@
 {% block scripts %}
 <script>
     window.homeFinanceDashboard = {
+        categoryNames: {{ summary.category_names | tojson }},
         byCategory: {{ summary.by_category | map(attribute='category_name') | list | tojson }},
         categoryTotals: {{ summary.by_category | map(attribute='total') | map('string') | list | tojson }},
-        byMonth: {{ summary.by_month | map(attribute='year') | list | tojson }},
-        monthTotals: {{ summary.by_month | map(attribute='total') | map('string') | list | tojson }}
+        monthsLast12: {
+            labels: {{ summary.months_last_12 | map(attribute='label') | list | tojson }},
+            perCategory: {
+                {% for name in summary.category_names %}
+                {{ name | tojson }}: [
+                    {% for row in summary.months_last_12 %}
+                    {{ row.per_category.get(name, 0) | string }},
+                    {% endfor %}
+                ],
+                {% endfor %}
+            }
+        },
+        yearsLast10: {
+            labels: {{ summary.years_last_10 | map(attribute='year') | list | tojson }},
+            perCategory: {
+                {% for name in summary.category_names %}
+                {{ name | tojson }}: [
+                    {% for row in summary.years_last_10 %}
+                    {{ row.per_category.get(name, 0) | string }},
+                    {% endfor %}
+                ],
+                {% endfor %}
+            }
+        }
     };
 </script>
 <script src="/static/js/charts.js"></script>

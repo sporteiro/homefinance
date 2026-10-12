@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.core.database import database
 from app.models import Base
 from app.routers import (
+    admin_router,
     category_router,
     dashboard_router,
     expense_router,
@@ -31,6 +32,7 @@ class Application:
         self.app.include_router(category_router)
         self.app.include_router(expense_router)
         self.app.include_router(import_router)
+        self.app.include_router(admin_router)
 
     def _create_tables(self) -> None:
         Base.metadata.create_all(bind=database.engine)

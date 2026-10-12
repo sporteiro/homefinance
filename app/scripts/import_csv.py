@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from app.core.database import database
-from app.services import CsvParser, ImportService
+from app.services import CategoryService, CsvParser, ImportService
 
 
 class CsvImportCommand:
@@ -15,16 +15,13 @@ class CsvImportCommand:
             description="Import expenses from a CSV file into HomeFinance."
         )
         parser.add_argument("file", type=Path, help="Path to the CSV file")
-        parser.add_argument(
-            "--source",
-            default="bank",
-            help="Source label for the import (default: bank)",
-        )
-        parser.add_argument("--date-column", default="date")
-        parser.add_argument("--amount-column", default="amount")
-        parser.add_argument("--description-column", default="description")
-        parser.add_argument("--category-column", default="category")
-        parser.add_argument("--external-id-column", default="id")
+        parser.add_argument("--category", required=True, help="Category name")
+        parser.add_argument("--source", default="bank")
+        parser.add_argument("--date-column", default="fecha")
+        parser.add_argument("--amount-column", default="importe")
+        parser.add_argument("--description-column", default="")
+        parser.add_argument("--category-column", default="")
+        parser.add_argument("--external-id-column", default="")
         parser.add_argument("--delimiter", default=",")
         return parser
 
@@ -37,22 +34,28 @@ class CsvImportCommand:
 
         content = self._read_content(args.file)
 
-        csv_parser = CsvParser(
+        parser = CsvParser(
             date_column=args.date_column,
             amount_column=args.amount_column,
             description_column=args.description_column,
-            category_column=args.category_column or None,
-            external_id_column=args.external_id_column or None,
+            category_column=args.category_column,
+            external_id_column=args.external_id_column,
             delimiter=args.delimiter,
+            absolute_amount=True,
+            skip_positive=True,
         )
 
         session = next(database.get_session())
         try:
-            service = ImportService(session, parser=csv_parser)
+            category_service = CategoryService(session)
+            category = category_service.get_or_create(args.category)
+
+            service = ImportService(session, parser=parser)
             result = service.import_from_csv(
                 filename=args.file.name,
                 content=content,
                 source=args.source,
+                default_category_id=category.id,
             )
         finally:
             session.close()

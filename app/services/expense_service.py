@@ -1,5 +1,6 @@
 from datetime import date
 
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
 from app.models import Expense
@@ -34,6 +35,22 @@ class ExpenseService:
         return (
             self.session.query(Expense)
             .filter(Expense.external_id == external_id)
+            .first()
+            is not None
+        )
+
+    def exists_same_month_amount_category(
+        self,
+        category_id: int,
+        occurred_on: date,
+        amount,
+    ) -> bool:
+        return (
+            self.session.query(Expense)
+            .filter(Expense.category_id == category_id)
+            .filter(Expense.amount == amount)
+            .filter(extract("year", Expense.occurred_on) == occurred_on.year)
+            .filter(extract("month", Expense.occurred_on) == occurred_on.month)
             .first()
             is not None
         )
