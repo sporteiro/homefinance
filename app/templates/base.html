@@ -1,9 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}HomeFinance{% endblock %}</title>
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem("homefinance-theme");
+                if (stored === "light" || stored === "dark") {
+                    document.documentElement.setAttribute("data-theme", stored);
+                }
+            } catch (e) {
+                // Ignore storage errors and keep the default theme.
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
@@ -14,7 +26,9 @@
             <a href="/expenses">Expenses</a>
             <a href="/categories">Categories</a>
             <a href="/import">Import</a>
+            <a href="/admin/reset">Reset</a>
             <a href="/docs">API</a>
+            <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">Light mode</button>
         </nav>
     </header>
 
@@ -26,6 +40,7 @@
         <span>HomeFinance - local, self-hosted</span>
     </footer>
 
+    <script src="/static/js/theme.js"></script>
     <script src="/static/js/main.js"></script>
     {% block scripts %}{% endblock %}
 </body>

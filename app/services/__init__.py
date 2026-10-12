@@ -3,6 +3,7 @@ from app.services.csv_parser import CsvParser
 from app.services.dashboard_service import DashboardService
 from app.services.expense_service import ExpenseService
 from app.services.import_service import ImportService
+from app.services.reset_service import ResetService
 
 __all__ = [
     "CategoryService",
@@ -10,4 +11,5 @@ __all__ = [
     "DashboardService",
     "ExpenseService",
     "ImportService",
+    "ResetService",
 ]

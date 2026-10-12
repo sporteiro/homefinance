@@ -15,6 +15,16 @@
         </label>
 
         <label>
+            Expense type
+            <select name="category_id" required>
+                <option value="">Select a type</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
             Source
             <input type="text" name="source" value="bank">
         </label>
@@ -23,23 +33,23 @@
             <legend>Column mapping</legend>
             <label>
                 Date column
-                <input type="text" name="date_column" value="date">
+                <input type="text" name="date_column" value="fecha">
             </label>
             <label>
                 Amount column
-                <input type="text" name="amount_column" value="amount">
+                <input type="text" name="amount_column" value="importe">
             </label>
             <label>
-                Description column
-                <input type="text" name="description_column" value="description">
+                Description column (leave empty to disable)
+                <input type="text" name="description_column" value="">
             </label>
             <label>
-                Category column
-                <input type="text" name="category_column" value="category">
+                Category column (leave empty to disable)
+                <input type="text" name="category_column" value="">
             </label>
             <label>
-                External ID column
-                <input type="text" name="external_id_column" value="id">
+                External ID column (leave empty to disable)
+                <input type="text" name="external_id_column" value="">
             </label>
             <label>
                 Delimiter

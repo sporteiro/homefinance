@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Reset data - HomeFinance{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h2>Reset data</h2>
+    </header>
+
+    <div class="warning-box">
+        <strong>Warning.</strong>
+        This action permanently deletes data from the database. It cannot be undone.
+        Review your selection carefully before proceeding.
+    </div>
+
+    <form id="reset-form" class="form">
+        <label>
+            What to reset
+            <select id="reset-scope" name="scope">
+                <option value="expenses">Expenses only</option>
+                <option value="imports">Import history only</option>
+                <option value="all">Everything (expenses and import history)</option>
+            </select>
+        </label>
+
+        <label id="category-field">
+            Category (leave empty to reset all categories)
+            <select id="reset-category" name="category_id">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Type <span class="mono">{{ confirmation_phrase }}</span> to confirm
+            <input type="text" id="reset-confirmation" name="confirmation" autocomplete="off">
+        </label>
+
+        <button type="submit" class="button button-danger">Reset data</button>
+    </form>
+
+    <section id="reset-result" class="panel hidden">
+        <h3>Result</h3>
+        <dl class="result-list">
+            <dt>Scope</dt><dd id="result-scope"></dd>
+            <dt>Category</dt><dd id="result-category"></dd>
+            <dt>Expenses deleted</dt><dd id="result-expenses"></dd>
+            <dt>Imports deleted</dt><dd id="result-imports"></dd>
+        </dl>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reset.js"></script>
+{% endblock %}
